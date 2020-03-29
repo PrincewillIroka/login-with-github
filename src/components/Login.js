@@ -1,13 +1,24 @@
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { Redirect } from "react-router-dom";
 import { initialState, reducer } from "../store/reducer";
 import Styled from "styled-components";
-import GithubIcon from 'mdi-react/GithubIcon';
-
+import GithubIcon from "mdi-react/GithubIcon";
 
 export default function Login() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [info, setState] = useState({ errorMessage: '', isLoading: false });
+  const [info, setState] = useState({ errorMessage: "", isLoading: false });  
+
+  const { client_id, redirect_uri, client_secret, proxy_url } = state;
+
+  useEffect(() => {
+    const url = window.location.href;
+    const hasCode = url.includes("?code=");
+    if (hasCode) {
+      const newUrl = url.split("?code=");
+      window.history.pushState({}, null, newUrl[0]);
+      setState({ ...state, isLoading: true });
+    }
+  }, []);
 
   if (state.isLoggedIn) {
     return <Redirect to="/" />;
@@ -29,8 +40,9 @@ export default function Login() {
               <>
                 <a
                   className="login-link"
+                  href={`https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`}
                   onClick={() => {
-                    this.setState({ errorMessage: "", isLoading: true });
+                    setState({ ...state, errorMessage: "" });
                   }}
                 >
                   <GithubIcon />
@@ -61,7 +73,8 @@ const Wrapper = Styled.section`
       align-items: center;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2);
       transition: 0.3s;
-      padding: 30px 80px 40px;
+      width: 25%;
+      height: 45%;
 
       > h1 {
         font-size: 2rem;
@@ -81,9 +94,13 @@ const Wrapper = Styled.section`
 
       .login-container {
         background-color: #000;
-        width: 100%;
+        width: 70%;
         border-radius: 3px;
         color: #fff;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         > .login-link {
           text-decoration: none;
@@ -92,7 +109,6 @@ const Wrapper = Styled.section`
           cursor: default;
           display: flex;
           align-items: center;
-          padding: 8px 15px;
 
           > span:nth-child(2) {
             margin-left: 5px;
@@ -102,7 +118,6 @@ const Wrapper = Styled.section`
         .loader-container {
           display: flex;
           justify-content: center;
-          margin: 8px 15px;
         }
 
         .loader {
