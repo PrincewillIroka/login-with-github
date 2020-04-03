@@ -1,14 +1,16 @@
-import React, { useReducer } from "react";
+import React, { useContext } from "react";
 import { Redirect } from "react-router-dom";
-import { initialState, reducer } from "../store/reducer";
 import Styled from "styled-components";
+import { AuthContext } from "../App";
+
 
 export default function Home() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { state } = useContext(AuthContext);
 
   if (!state.isLoggedIn) {
     return <Redirect to="/login" />;
   }
+
   return (
     <Wrapper>
       <div className="container">
@@ -24,7 +26,9 @@ const Wrapper = Styled.section`
   font-size: 18px;
   font-family: Arial;
   justify-content: center;
-  margin-top: 250px;
+  align-items: center;
+  height: 100vh;
+
 
   .boldText{
     font-weight: bold;

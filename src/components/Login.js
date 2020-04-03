@@ -1,24 +1,57 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Redirect } from "react-router-dom";
-import { initialState, reducer } from "../store/reducer";
 import Styled from "styled-components";
 import GithubIcon from "mdi-react/GithubIcon";
+import { AuthContext } from "../App";
+
 
 export default function Login() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [info, setState] = useState({ errorMessage: "", isLoading: false });  
+  const { state, dispatch } = useContext(AuthContext);
+  const [data, setData] = useState({ errorMessage: "", isLoading: false });
 
-  const { client_id, redirect_uri, client_secret, proxy_url } = state;
+  const { client_id, redirect_uri } = state;
 
   useEffect(() => {
+    // After requesting Github access, Github redirects back to your app with a code parameter
     const url = window.location.href;
     const hasCode = url.includes("?code=");
+
+    // If Github API returns the code parameter
     if (hasCode) {
       const newUrl = url.split("?code=");
       window.history.pushState({}, null, newUrl[0]);
-      setState({ ...state, isLoading: true });
+      setData({ ...data, isLoading: true });
+
+      const requestData = {
+        client_id: state.client_id,
+        redirect_uri: state.redirect_uri,
+        client_secret: state.client_secret,
+        code: newUrl[1]
+      };
+
+      const proxy_url = state.proxy_url;
+
+      // Use code parameter and other parameters to make POST request to proxy_server
+      fetch(proxy_url, {
+        method: "POST",
+        body: JSON.stringify(requestData)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+          dispatch({
+            type: "LOGIN",
+            payload: { user: data, isLoggedIn: true }
+          });
+        })
+        .catch(error => {
+          setData({
+            isLoading: false,
+            errorMessage: "Sorry! Login failed"
+          });
+        });
     }
-  }, []);
+  }, [state, dispatch]);
 
   if (state.isLoggedIn) {
     return <Redirect to="/" />;
@@ -30,19 +63,22 @@ export default function Login() {
         <div>
           <h1>Welcome</h1>
           <span>Super amazing app</span>
-          <span>{info.errorMessage}</span>
+          <span>{data.errorMessage}</span>
           <div className="login-container">
-            {info.isLoading ? (
+            {data.isLoading ? (
               <div className="loader-container">
                 <div className="loader"></div>
               </div>
             ) : (
               <>
+                {
+                  // Link to request GitHub access
+                }
                 <a
                   className="login-link"
                   href={`https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`}
                   onClick={() => {
-                    setState({ ...state, errorMessage: "" });
+                    setData({ ...data, errorMessage: "" });
                   }}
                 >
                   <GithubIcon />
@@ -97,7 +133,6 @@ const Wrapper = Styled.section`
         width: 70%;
         border-radius: 3px;
         color: #fff;
-        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -108,7 +143,8 @@ const Wrapper = Styled.section`
           text-transform: uppercase;
           cursor: default;
           display: flex;
-          align-items: center;
+          align-items: center;          
+          height: 40px;
 
           > span:nth-child(2) {
             margin-left: 5px;
@@ -118,6 +154,8 @@ const Wrapper = Styled.section`
         .loader-container {
           display: flex;
           justify-content: center;
+          align-items: center;          
+          height: 40px;
         }
 
         .loader {
