@@ -38,7 +38,6 @@ export default function Login() {
       })
         .then(response => response.json())
         .then(data => {
-          console.log(data)
           dispatch({
             type: "LOGIN",
             payload: { user: data, isLoggedIn: true }
@@ -51,7 +50,7 @@ export default function Login() {
           });
         });
     }
-  }, [state, dispatch]);
+  }, [state, dispatch, data]);
 
   if (state.isLoggedIn) {
     return <Redirect to="/" />;
