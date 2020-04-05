@@ -1,6 +1,6 @@
 ## Login with Github
 
-An app that implements "Login with GitHub" functionality in a React App
+An app that implements "Login with GitHub" functionality in React
 
 ![Login Screen](https://imgur.com/wW6k2HF.png)
 
