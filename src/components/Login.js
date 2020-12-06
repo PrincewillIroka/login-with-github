@@ -23,9 +23,6 @@ export default function Login() {
       setData({ ...data, isLoading: true });
 
       const requestData = {
-        client_id: state.client_id,
-        redirect_uri: state.redirect_uri,
-        client_secret: state.client_secret,
         code: newUrl[1]
       };
 

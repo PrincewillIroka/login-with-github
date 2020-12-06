@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const FormData = require("form-data");
 const fetch = require("node-fetch");
+const { client_id, redirect_uri, client_secret } = require("./config");
+
+const config = require("./config");
 
 const app = express();
 
@@ -16,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 app.post("/authenticate", (req, res) => {
-  const { client_id, redirect_uri, client_secret, code } = req.body;
+  const { code } = req.body;
 
   const data = new FormData();
   data.append("client_id", client_id);
@@ -27,25 +30,25 @@ app.post("/authenticate", (req, res) => {
   // Request to exchange code for an access token
   fetch(`https://github.com/login/oauth/access_token`, {
     method: "POST",
-    body: data
+    body: data,
   })
-    .then(response => response.text())
-    .then(paramsString => {
+    .then((response) => response.text())
+    .then((paramsString) => {
       let params = new URLSearchParams(paramsString);
       const access_token = params.get("access_token");
-      const scope = params.get("scope");
-      const token_type = params.get("token_type");
 
       // Request to return data of a user that has been authenticated
-      return fetch(
-        `https://api.github.com/user?access_token=${access_token}&scope=${scope}&token_type=${token_type}`
-      );
+      return fetch(`https://api.github.com/user`, {
+        headers: {
+          Authorization: `token ${access_token}`,
+        },
+      });
     })
-    .then(response => response.json())
-    .then(response => {
+    .then((response) => response.json())
+    .then((response) => {
       return res.status(200).json(response);
     })
-    .catch(error => {
+    .catch((error) => {
       return res.status(400).json(error);
     });
 });

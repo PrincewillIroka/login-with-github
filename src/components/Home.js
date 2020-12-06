@@ -25,7 +25,7 @@ export default function Home() {
         <button onClick={()=> handleLogout()}>Logout</button>
         <div>
           <div className="content">
-            <img src={avatar_url} />
+            <img src={avatar_url} alt="Avatar"/>
             <span>{name}</span>
             <span>{public_repos} Repos</span>
             <span>{followers} Followers</span>
