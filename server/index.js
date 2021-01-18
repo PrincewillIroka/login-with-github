@@ -53,5 +53,9 @@ app.post("/authenticate", (req, res) => {
     });
 });
 
+app.get("/", (req, res) => {
+  
+})
+
 const PORT = process.env.SERVER_PORT || 5000;
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
