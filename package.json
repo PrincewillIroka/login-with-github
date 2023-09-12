@@ -41,6 +41,7 @@
     ]
   },
   "devDependencies": {
-    "joi": "^17.2.1"
+    "joi": "^17.2.1",
+    "nodemon": "^3.0.1"
   }
 }
